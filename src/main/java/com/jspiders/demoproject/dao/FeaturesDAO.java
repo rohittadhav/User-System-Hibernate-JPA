@@ -90,13 +90,16 @@ public class FeaturesDAO {
 	}
 
 	// Fetch user by Id
-	public void fetchUserById(int id, String userRole, int userId) {
+	public void fetchUserById(int userId, int fetchId) {
 		openConnection();
-		UserDTO user = entityManager.find(UserDTO.class, id);
+		UserDTO user = entityManager.find(UserDTO.class, fetchId);
 
 		if (user == null) {
 			System.out.println("User not found.");
 		} else {
+			UserDTO loggedInUser = entityManager.find(UserDTO.class, userId);
+			String userRole = loggedInUser.getRole();
+			
 			if ("admin".equalsIgnoreCase(userRole)) {
 				displayUserDetails(user);
 			} else if ("user".equalsIgnoreCase(userRole) && user.getId() == userId) {
@@ -110,16 +113,15 @@ public class FeaturesDAO {
 
 	// Display user details
 	private void displayUserDetails(UserDTO user) {
-		System.out.println(
-				"--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
+		System.out.println("--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
 		System.out.println("User found here are the details: ");
 		System.out.println("Id: " + user.getId());
 		System.out.println("Name: " + user.getName());
 		System.out.println("Email: " + user.getEmail());
 		System.out.println("Mobile: " + user.getMobile());
+		System.out.println("Password: " + user.getPassword());
 		System.out.println("Role: " + user.getRole());
-		System.out.println(
-				"--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
+		System.out.println("--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
 	}
 
 	// Fetch user by email and password
@@ -135,10 +137,10 @@ public class FeaturesDAO {
 
 			user = query.getSingleResult();
 			if (user != null) {
-				String role = user.getRole();
-				if ("admin".equalsIgnoreCase(role)) {
+				String userRole = user.getRole();
+				if ("admin".equalsIgnoreCase(userRole)) {
 					displayUserDetails(user);
-				} else if ("user".equalsIgnoreCase(role) && userEmail.equals(user.getEmail())
+				} else if ("user".equalsIgnoreCase(userRole) && userEmail.equals(user.getEmail())
 						&& userPassword.equals(user.getPassword())) {
 					displayUserDetails(user);
 				}
@@ -147,7 +149,7 @@ public class FeaturesDAO {
 			}
 
 		} catch (Exception e) {
-			System.out.println("No user found with the given email and password.");
+			System.out.println("Invalid email or password. No user found.");
 		} finally {
 			closeConnection();
 		}
@@ -160,11 +162,11 @@ public class FeaturesDAO {
 		UserDTO user = entityManager.find(UserDTO.class, userId);
 
 		if (user == null) {
-			System.out.println("User not found.");
+			System.out.println("Invalid user id. User not found.");
 		} else {
-			String UserRole = user.getRole();
+			String userRole = user.getRole();
 
-			if ("admin".equalsIgnoreCase(UserRole)) {
+			if ("admin".equalsIgnoreCase(userRole)) {
 
 				String jquery = "SELECT u FROM UserDTO u";
 				TypedQuery<UserDTO> query = entityManager.createQuery(jquery, UserDTO.class);
@@ -177,7 +179,7 @@ public class FeaturesDAO {
 						displayUserDetails(user1);
 					}
 				}
-			} else if ("user".equalsIgnoreCase(UserRole)) {
+			} else if ("user".equalsIgnoreCase(userRole)) {
 				displayUserDetails(user);
 			} else {
 				System.out.println("Access Denied: Invalid role.");
@@ -272,7 +274,6 @@ public class FeaturesDAO {
 			String userRole = loggedInUser.getRole();
 
 			if ("admin".equalsIgnoreCase(userRole) || ("user".equalsIgnoreCase(userRole) && id == deleteId)) {
-
 				entityTransaction.begin();
 				entityManager.remove(user);
 				entityTransaction.commit();

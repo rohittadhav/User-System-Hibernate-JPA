@@ -36,16 +36,13 @@ public class OperationDAO {
 
 			case 2:
 				System.out.println("Enter your id: ");
-				int currentUserId = scanner.nextInt();
+				int userId = scanner.nextInt();
 				scanner.nextLine();
 
-				System.out.println("Enter your role (user/admin): ");
-				String currentUserRole = scanner.nextLine();
-
 				System.out.println("Enter user id you want to fetch: ");
-				int userId = scanner.nextInt();
+				int fetchId = scanner.nextInt();
 
-				features.fetchUserById(userId, currentUserRole, currentUserId);
+				features.fetchUserById(userId, fetchId);
 				break;
 
 			case 3:
